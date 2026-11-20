@@ -2,30 +2,16 @@ export type ReceiptCategory = "Meals" | "Travel" | "Lodging" | "Office" | "Other
 
 export type IngestionSourceType =
   | "manual_upload"
-  | "drive_file"
-  | "gmail_attachment"
-  | "gmail_html";
+  | "pasted_text"
+  | "manual_entry"
+  | "json_import"
+  | "sample_pile";
 
-export interface WorkspaceSourceMeta {
+export interface SourceMeta {
   sourceType: IngestionSourceType;
   costCenter?: string;
-  department?: string;
   submittedBy?: string;
-  // Google Drive provenance
-  driveFileId?: string;
-  driveFolderId?: string;
-  driveFolderName?: string;
-  driveFileName?: string;
-  driveWebViewLink?: string;
-  driveCreatedTime?: string;
-  driveOwner?: string;
-  // Gmail provenance
-  gmailMessageId?: string;
-  gmailThreadId?: string;
-  emailFrom?: string;
-  emailSubject?: string;
-  emailDate?: string;
-  attachmentFilename?: string;
+  originLabel?: string;
 }
 
 export type ReceiptFlagType =
@@ -35,6 +21,7 @@ export type ReceiptFlagType =
   | "possible_duplicate"
   | "cross_source_duplicate"
   | "missing_tax_invoice"
+  | "over_policy_limit"
   | "low_confidence"
   | "not_a_receipt";
 
@@ -101,10 +88,10 @@ export interface ReceiptRow {
   checked?: boolean;
   user_conversion_rate?: number | null;
   user_conversion_date?: string | null;
-  source_meta?: WorkspaceSourceMeta;
+  source_meta?: SourceMeta;
   cost_center?: string;
   source_photo_id?: string;
-  receipt_index_in_photo?: number;
+  raw_text?: string;
 }
 
 export interface ComputedRow extends ReceiptRow {
@@ -134,12 +121,18 @@ export interface MerchantTileData {
 export type TileColorToken = "blue-900" | "blue-700" | "blue-500" | "white";
 
 export interface PositionedTile extends MerchantTileData {
-  x: number; // 0..1 normalised within treemap container
-  y: number; // 0..1 normalised within treemap container
-  w: number; // 0..1 normalised width
-  h: number; // 0..1 normalised height
+  x: number;
+  y: number;
+  w: number;
+  h: number;
   colorToken: TileColorToken;
   rank: number;
+}
+
+export interface SpendPolicy {
+  monthlyBudget: number;
+  singleReceiptLimit: number;
+  requireTaxIdAbove: number;
 }
 
 export interface ReconciliationResult {
@@ -152,41 +145,36 @@ export interface ReconciliationResult {
   sourceCounts: Record<IngestionSourceType, number>;
   crossSourceDuplicatesCount: number;
   missingTaxInvoiceCount: number;
+  overPolicyCount: number;
   foreignTotals: Array<{
     currency: string;
     totalCents: number;
     totalAmount: number;
     count: number;
   }>;
-  totalPhotos: number;
-  totalReceipts: number;
-  activeReceiptsCount: number;
+  receiptsFound: number;
+  includedCount: number;
+  excludedCount: number;
   toCheckCount: number;
+  totalPhotos: number;
 }
 
 export interface UploadedPhoto {
   id: string;
-  globalIndex: number; // 1-based
-  file: File;
+  file?: File;
   name: string;
   displayName: string;
   objectUrl: string;
+  globalIndex: number;
+  status: "queued" | "reading" | "done" | "error";
+  receiptsCount: number;
+  errorText?: string;
   base64Data?: string;
   mimeType?: string;
   width?: number;
   height?: number;
   byteSize?: number;
-  status: "idle" | "reading" | "done" | "error";
-  receiptsCount: number;
-  batchId?: number;
-  errorText?: string;
-  sourceMeta?: WorkspaceSourceMeta;
+  sourceMeta?: SourceMeta;
 }
 
-export interface FailedBatchInfo {
-  batchId: number;
-  startPhotoIndex: number;
-  endPhotoIndex: number;
-  photoIds: string[];
-  errorMessage: string;
-}
+export type WorkspaceTab = "treemap" | "ledger" | "splittax" | "policy";

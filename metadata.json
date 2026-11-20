@@ -1,15 +1,8 @@
 {
-  "name": "Remix Expense \u0026 Receipts Analytics",
-  "description": "A Gemini 4 Argon powered app that ingests uploaded receipt photos, extracts and categorizes line-item expenses, flags anomalies, and exports clean structured data through an interactive UI.",
+  "name": "Shoebox — Spend Audit & Receipt Reconciliation",
+  "description": "Zero-database receipt auditing and spend utility. Drop receipt photos or paste text in-memory to verify totals, catch duplicates, split group bills, summarize deductible tax, and export CSV/JSON.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ],
-  "oauthScopes": [
-    "https://www.googleapis.com/auth/drive.file",
-    "https://www.googleapis.com/auth/drive.readonly",
-    "https://www.googleapis.com/auth/gmail.compose",
-    "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/userinfo.email"
   ]
 }
